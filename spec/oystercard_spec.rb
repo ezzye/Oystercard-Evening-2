@@ -4,6 +4,8 @@ describe Oystercard do
   let(:station1) {double(:station1, :name => 'victoria', :zone => 1)}
   let(:station2) {double(:station2, :name => 'brixton', :zone => 2)}
   let (:journey){ {:entry_station => station1, :exit_station => station2} }
+  let(:topped_up) {Oystercard.new 20}
+  let(:journey_list) {JourneyLog.new}
 
   it 'balance is zero when initialized' do
     expect(subject.balance).to eq 0
@@ -63,6 +65,10 @@ describe Oystercard do
         subject.touch_in station1
         expect(subject.entry_station).to eq station1
       end
+      it 'twice penalty fare made' do
+        topped_up.touch_in station1
+        expect {topped_up.touch_in station1}.to change {topped_up.balance}.by -Oystercard::PENALTY
+      end
     end
     context 'when touch out' do
       it 'records station' do
@@ -72,20 +78,20 @@ describe Oystercard do
         expect(subject.exit_station).to eq station2
       end
       it 'has empty list_of_journeys' do
-        expect(subject.list_of_journeys).to be_empty
+        expect(journey_list.log).to be_empty
       end
       it 'records hash of journey' do
         subject.top_up Oystercard::MINIMUM_BALANCE
         subject.touch_in station1
         subject.touch_out station2
-        expect(subject.list_of_journeys.count).to eq 1
+        expect(subject.list_of_journeys.log.count).to eq 1
       end
       it 'record list of journeys' do
         subject.top_up Oystercard::MINIMUM_BALANCE
         subject.touch_in station1
         subject.touch_out station2
         # expect(subject.list_of_journeys).to eq [{:entry_station => station1,:exit_station => station2}]
-        expect(subject.list_of_journeys).to include journey
+        expect(subject.list_of_journeys.log).to include journey
       end
     end
   end
@@ -96,14 +102,14 @@ describe Oystercard do
          subject.top_up(10)
          subject.touch_in(station1)
          subject.touch_out(station2)
-        expect(subject.list_of_journeys.last[:entry_station].name).to eq 'victoria'
+        expect(subject.list_of_journeys.log.last[:entry_station].name).to eq 'victoria'
        end
 
        it 'journey contain #zone info' do
          subject.top_up(10)
          subject.touch_in(station1)
          subject.touch_out(station2)
-        expect(subject.list_of_journeys.last[:entry_station].zone).to eq 1
+        expect(subject.list_of_journeys.log.last[:entry_station].zone).to eq 1
        end
      end
   end
