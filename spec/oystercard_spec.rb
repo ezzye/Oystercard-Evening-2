@@ -1,8 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:station1) {double(:station1)}
-  let(:station2) {double(:station2)}
+  let(:station1) {double(:station1, :name => 'victoria', :zone => 1)}
+  let(:station2) {double(:station2, :name => 'brixton', :zone => 2)}
   let (:journey){ {:entry_station => station1, :exit_station => station2} }
 
   it 'balance is zero when initialized' do
@@ -90,4 +90,21 @@ describe Oystercard do
     end
   end
 
+  describe '#zone and station #name' do
+    context 'when touch_in' do
+       it 'journey contain #name info' do
+         subject.top_up(10)
+         subject.touch_in(station1)
+         subject.touch_out(station2)
+        expect(subject.list_of_journeys.last[:entry_station].name).to eq 'victoria'
+       end
+
+       it 'journey contain #zone info' do
+         subject.top_up(10)
+         subject.touch_in(station1)
+         subject.touch_out(station2)
+        expect(subject.list_of_journeys.last[:entry_station].zone).to eq 1
+       end
+     end
+  end
 end
