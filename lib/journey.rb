@@ -1,6 +1,6 @@
 class Journey
 
-  attr_reader :entry, :exit, :complete
+  attr_reader :entry, :complete, :zone
   attr_writer :complete
 
   def initialize entry
@@ -13,16 +13,12 @@ class Journey
     self.complete = true
   end
 
+  def exit
+    @exit
+  end
+
   def fare
     (entry.zone - exit.zone).abs * 2
   end
-
-  # def complete=
-  #   self.complete = true
-  # end
-
-  private
-
-
 
 end
